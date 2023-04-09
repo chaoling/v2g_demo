@@ -1,0 +1,15 @@
+[Unit]
+Description=auto start the v2g-demo app	
+After=graphical.target
+
+[Service]
+Environment=XAUTHORITY=/home/firekirin/.Xauthority
+Type=simple
+User=firekirin
+Group=sudo
+ExecStart=/usr/bin/run_demo.sh
+TimeoutStartSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
