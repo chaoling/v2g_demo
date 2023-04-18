@@ -1,12 +1,10 @@
-#!/usr/bin/python3
-
 from gpiozero import LED,Button
 import os
 from time import sleep
 import pygame
 
 #setup the button on GPIO pin 4
-NUM_OF_STOPS=3
+
 start_btn = Button(2)
 v2g_btn = Button(3)
 stop_btn = Button(17)
@@ -14,6 +12,10 @@ led_green = LED(4)
 led_blue = LED(27)
 led_red = LED (22)
 
+# Varibles
+
+ch = False
+dh = False
 
 # Set up Pygame
 pygame.init()
@@ -21,17 +23,14 @@ os.environ["DISPLAY"] = ":0"
 pygame.display.init()
 width=1080
 height=550
-#width=1600
-#height=960
 screen = pygame.display.set_mode((width, height))
 pygame.mouse.set_visible(False)
 
 # Load images
-resource_path="/home/firekirin/Documents/prototype/"
 
-splash_image = pygame.image.load(f"{resource_path}battery.png")
-charge1_image = pygame.image.load(f"{resource_path}charge1.png")
-charge2_image = pygame.image.load(f"{resource_path}charge2.png")
+splash_image = pygame.image.load("battery.png")
+charge1_image = pygame.image.load("charge1.png")
+charge2_image = pygame.image.load("charge2.png")
 splash_image = pygame.transform.scale(splash_image, (width, height))
 charge1_image = pygame.transform.scale(charge1_image, (width, height))
 charge2_image = pygame.transform.scale(charge2_image, (width, height))
@@ -48,7 +47,7 @@ def show_splash_screen():
     led_blue.off()
     
 
-def img_transition(image1, image2, transition_time = 200, transition_steps = 10, bg_color=(255,255,255)):
+def img_transition(image1, image2, transition_time = 200, transition_steps = 100, bg_color=(255,255,255)):
     #show transition from image1 to image2
 
     # Blit image1 to screen
@@ -82,21 +81,29 @@ def img_transition(image1, image2, transition_time = 200, transition_steps = 10,
 
 
 def start_charging():
-    led_green.on()
-    led_red.off()
-    led_blue.off()
-    print("start charging...")
-    img_transition(splash_image,charge1_image)
+    if dh == False:
+        led_green.on()
+        led_red.off()
+        led_blue.off()
+        print("start charging...")
+        img_transition(splash_image,charge1_image)
+        ch = true
+    else:
+        return 
     #screen.blit(charge1_image, (0, 0))
     #pygame.display.flip()
     
 
 def start_v2g():
-    led_blue.on()
-    led_red.off()
-    led_green.off()
-    print("start v2g charging...")
-    img_transition(splash_image,charge2_image)
+    if ch == False:
+        led_blue.on()
+        led_red.off()
+        led_green.off()
+        print("start v2g charging...")
+        img_transition(splash_image,charge2_image)
+        dh = true
+    else:
+        return
     #screen.blit(charge2_image, (0, 0))
     #pygame.display.flip()
     
@@ -108,12 +115,9 @@ def stop_charging():
     led_blue.off()
     led_green.off()
     print(f"Button pressed, stop charging {stop_count=}...")
-    if stop_count < NUM_OF_STOPS:
-       img_transition(None,splash_image,transition_time = 100, transition_steps = 5)
-    else:
-        led_red.off()
-        print(f"Button pressed twice, exit program")
-        exit(0)
+    img_transition(None,splash_image,transition_time = 100, transition_steps = 100)
+    dh = False
+    ch = False
         
     
 # Assign the function to the button's "when_pressed" event
